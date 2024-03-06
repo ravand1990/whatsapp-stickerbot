@@ -18,13 +18,10 @@ const options = {
 const client: Client = new Client(options);
 
 client.on("qr", (qr: string) => {
-  // Generate and scan this code with your phone
   qrcode.generate(qr, { small: true });
 });
 
-client.on("ready", () => {
-  console.log("Client is ready!");
-});
+client.on("ready", () => {});
 
 client.on("message_create", (msg) => {
   sendSticker(msg);
@@ -43,15 +40,10 @@ async function sendSticker(msg: Message) {
     msg.type != MessageTypes.STICKER
   ) {
     const receivedMedia = await msg.downloadMedia();
-    console.log("receivedMedia", receivedMedia);
-
-    let sticker = await convertToSticker(receivedMedia);
-    console.log("sticker", sticker);
-
+    // let sticker = await convertToSticker(receivedMedia);
     const sentMessage = await client.sendMessage(msg.to, receivedMedia, {
       sendMediaAsSticker: true,
     } as MessageSendOptions);
-    console.log("sentMessage", sentMessage);
   }
 }
 async function convertToSticker(media: MessageMedia) {
