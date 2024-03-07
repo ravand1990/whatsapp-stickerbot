@@ -9,7 +9,7 @@ import {
 } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
 import * as process from "process";
-import spawn from "child_process";
+import { exec } from "child_process";
 import * as fs from "fs";
 
 const Utils = require("whatsapp-web.js/src/util/Util.js");
@@ -84,11 +84,6 @@ function saveBase64AsFile(media: MessageMedia) {
 }
 
 async function removeBg(media: MessageMedia) {
-  const pythonProcess = spawn.spawn("python3", [
-    "rembg",
-    "i",
-    "image.jpeg",
-    "image.png",
-  ]);
+  exec("rembg i image.jpeg image.png");
   return MessageMedia.fromFilePath("image.jpeg");
 }
