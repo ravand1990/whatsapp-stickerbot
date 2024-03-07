@@ -24,7 +24,9 @@ client.on("qr", (qr: string) => {
   qrcode.generate(qr, { small: true });
 });
 
-client.on("ready", () => {});
+client.on("ready", () => {
+  console.log("READY!");
+});
 
 client.on("message_create", (msg) => {
   sendSticker(msg);
@@ -42,6 +44,7 @@ async function sendSticker(msg: Message) {
     msg.hasMedia &&
     msg.type != MessageTypes.STICKER
   ) {
+    console.log(`Detected sticker request from ${msg.author}. Creating...`);
     const receivedMedia = await msg.downloadMedia();
     // let sticker = await convertToSticker(receivedMedia);
     await client.sendMessage(msg.to, receivedMedia, {
