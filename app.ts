@@ -84,6 +84,7 @@ function saveBase64AsFile(media: MessageMedia) {
 
 async function removeBg(media: MessageMedia) {
   await executeCommand("rembg i image.jpeg image.png");
+  await executeCommand("convert image.png -trim +repage image.png");
   return MessageMedia.fromFilePath("image.png");
 }
 
