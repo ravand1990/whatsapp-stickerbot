@@ -13,6 +13,7 @@ const Utils = require("whatsapp-web.js/src/util/Util.js");
 
 const options = {
   authStrategy: new LocalAuth(),
+  puppeteer: { channel: "chrome" },
 } as ClientOptions;
 const client: Client = new Client(options);
 
@@ -40,7 +41,7 @@ async function sendSticker(msg: Message) {
   ) {
     const receivedMedia = await msg.downloadMedia();
     // let sticker = await convertToSticker(receivedMedia);
-    const sentMessage = await client.sendMessage(msg.to, receivedMedia, {
+    await client.sendMessage(msg.to, receivedMedia, {
       sendMediaAsSticker: true,
     } as MessageSendOptions);
   }
