@@ -57,16 +57,24 @@ async function sendSticker(msg: Message) {
   ) {
     console.log(`Detected sticker request from ${msg.author}. Creating...`);
 
+    msg.react("⏳");
+
     let receivedMedia = await msg.downloadMedia();
 
     if (transparentStickerRequest && receivedMedia.mimetype.includes("jpeg")) {
       saveBase64AsFile(receivedMedia);
-      receivedMedia = await removeBg(MessageMedia.fromFilePath("image.jpeg"));
+      receivedMedia = await removeBg();
     }
 
-    await client.sendMessage(msg.fromMe ? msg.to : msg.from, receivedMedia, {
-      sendMediaAsSticker: true,
-    } as MessageSendOptions);
+    msg.react("✅");
+
+    await client.sendMessage(
+      msg.fromMe || isWin ? msg.to : msg.from,
+      receivedMedia,
+      {
+        sendMediaAsSticker: true,
+      } as MessageSendOptions,
+    );
   }
 }
 
