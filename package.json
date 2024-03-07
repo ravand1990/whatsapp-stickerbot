@@ -1,7 +1,7 @@
 {
 	"scripts": {
 		"serve": "npx nodemon --watch **/*.ts --ignore 'src/**/*.spec.ts' --exec npx ts-node app.ts",
-    "build" : "tsc app.ts"
+    "build" : "npx tsc"
 	},
 	"dependencies": {
 		"dotenv": "^16.4.5",
