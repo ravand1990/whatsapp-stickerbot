@@ -8,6 +8,9 @@ import {
   MessageTypes,
 } from "whatsapp-web.js";
 import * as qrcode from "qrcode-terminal";
+import * as process from "process";
+import spawn from "child_process";
+import * as fs from "fs";
 
 const Utils = require("whatsapp-web.js/src/util/Util.js");
 
@@ -42,22 +45,50 @@ client.on("message", (msg: Message) => {
 client.initialize();
 
 async function sendSticker(msg: Message) {
+  const stickerRequest = msg.body.toLowerCase() === "!sticker";
+  const transparentStickerRequest = msg.body.toLowerCase() === "!!sticker";
+
   if (
-    msg.body.toLowerCase().includes("!sticker") &&
+    (stickerRequest || transparentStickerRequest) &&
     msg.hasMedia &&
     msg.type != MessageTypes.STICKER
   ) {
     console.log(`Detected sticker request from ${msg.author}. Creating...`);
-    const receivedMedia = await msg.downloadMedia();
-    // let sticker = await convertToSticker(receivedMedia);
+
+    let receivedMedia = await msg.downloadMedia();
+
+    if (transparentStickerRequest && receivedMedia.mimetype.includes("jpeg")) {
+      saveBase64AsFile(receivedMedia);
+      receivedMedia = await removeBg(MessageMedia.fromFilePath("image.jpeg"));
+    }
+    console.log("receivedMedia", receivedMedia);
+
     await client.sendMessage(msg.fromMe ? msg.to : msg.from, receivedMedia, {
       sendMediaAsSticker: true,
     } as MessageSendOptions);
   }
 }
+
 async function convertToSticker(media: MessageMedia) {
   if (media.mimetype.includes("image"))
     return await Utils.formatImageToWebpSticker(media, client.pupPage);
   if (media.mimetype.includes("video"))
     return await Utils.formatVideoToWebpSticker(media, client.pupPage);
+}
+
+function saveBase64AsFile(media: MessageMedia) {
+  const base64String = `data:${media.mimetype};${media.data}`;
+  const buffer = Buffer.from(media.data, "base64");
+
+  fs.writeFileSync("image.jpeg", buffer);
+}
+
+async function removeBg(media: MessageMedia) {
+  const pythonProcess = spawn.spawn("python3", [
+    "rembg",
+    "i",
+    "image.jpeg",
+    "image.png",
+  ]);
+  return MessageMedia.fromFilePath("image.jpeg");
 }
