@@ -61,7 +61,6 @@ async function sendSticker(msg: Message) {
       saveBase64AsFile(receivedMedia);
       receivedMedia = await removeBg(MessageMedia.fromFilePath("image.jpeg"));
     }
-    console.log("receivedMedia", receivedMedia);
 
     await client.sendMessage(msg.fromMe ? msg.to : msg.from, receivedMedia, {
       sendMediaAsSticker: true,
