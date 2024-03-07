@@ -45,36 +45,47 @@ client.on("message", (msg: Message) => {
 client.initialize();
 
 async function sendSticker(msg: Message) {
-  const stickerRequest =
-    msg.body.toLowerCase() === "!sticker" ||
-    msg.body.toLowerCase() === "sticker";
-  const transparentStickerRequest = msg.body.toLowerCase() === "!!sticker";
+  try {
+    const stickerRequest =
+      msg.body.toLowerCase() === "!sticker" ||
+      msg.body.toLowerCase() === "sticker" ||
+      msg.body.toLowerCase() === "! sticker";
+    const transparentStickerRequest =
+      msg.body.toLowerCase() === "!!sticker" ||
+      msg.body.toLowerCase() === "!! sticker";
 
-  if (
-    (stickerRequest || transparentStickerRequest) &&
-    msg.hasMedia &&
-    msg.type != MessageTypes.STICKER
-  ) {
-    console.log(`Detected sticker request from ${msg.author}. Creating...`);
+    if (
+      (stickerRequest || transparentStickerRequest) &&
+      msg.hasMedia &&
+      msg.type != MessageTypes.STICKER
+    ) {
+      console.log(`Detected sticker request from ${msg.author}. Creating...`);
 
-    msg.react("⏳");
+      msg.react("⏳");
 
-    let receivedMedia = await msg.downloadMedia();
+      let receivedMedia = await msg.downloadMedia();
 
-    if (transparentStickerRequest && receivedMedia.mimetype.includes("jpeg")) {
-      saveBase64AsFile(receivedMedia);
-      receivedMedia = await removeBg();
+      if (
+        transparentStickerRequest &&
+        receivedMedia.mimetype.includes("jpeg")
+      ) {
+        saveBase64AsFile(receivedMedia);
+        receivedMedia = await removeBg();
+      }
+
+      msg.react("✅");
+
+      await client.sendMessage(
+        msg.fromMe || isWin ? msg.to : msg.from,
+        receivedMedia,
+        {
+          sendMediaAsSticker: true,
+        } as MessageSendOptions,
+      );
     }
-
-    msg.react("✅");
-
-    await client.sendMessage(
-      msg.fromMe || isWin ? msg.to : msg.from,
-      receivedMedia,
-      {
-        sendMediaAsSticker: true,
-      } as MessageSendOptions,
-    );
+  } catch (e) {
+    msg.react("❌");
+    console.log("e.message", e.message);
   }
 }
 
