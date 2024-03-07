@@ -12,7 +12,7 @@ import * as process from "process";
 import { exec } from "child_process";
 import * as fs from "fs";
 
-const Utils = require("whatsapp-web.js/src/util/Util.js");
+// const Utils = require("whatsapp-web.js/src/util/Util.js");
 
 const isWin = process.platform === "win32";
 
@@ -45,7 +45,9 @@ client.on("message", (msg: Message) => {
 client.initialize();
 
 async function sendSticker(msg: Message) {
-  const stickerRequest = msg.body.toLowerCase() === "!sticker";
+  const stickerRequest =
+    msg.body.toLowerCase() === "!sticker" ||
+    msg.body.toLowerCase() === "sticker";
   const transparentStickerRequest = msg.body.toLowerCase() === "!!sticker";
 
   if (
@@ -68,21 +70,21 @@ async function sendSticker(msg: Message) {
   }
 }
 
+/*
 async function convertToSticker(media: MessageMedia) {
   if (media.mimetype.includes("image"))
     return await Utils.formatImageToWebpSticker(media, client.pupPage);
   if (media.mimetype.includes("video"))
     return await Utils.formatVideoToWebpSticker(media, client.pupPage);
 }
+*/
 
 function saveBase64AsFile(media: MessageMedia) {
-  const base64String = `data:${media.mimetype};${media.data}`;
   const buffer = Buffer.from(media.data, "base64");
-
   fs.writeFileSync("image.jpeg", buffer);
 }
 
-async function removeBg(media: MessageMedia) {
+async function removeBg() {
   await executeCommand("rembg i image.jpeg image.png");
   await executeCommand("convert image.png -trim +repage image.png");
   return MessageMedia.fromFilePath("image.png");
