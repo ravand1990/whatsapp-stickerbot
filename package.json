@@ -1,11 +1,12 @@
 {
 	"scripts": {
 		"serve": "npx nodemon --watch **/*.ts --ignore 'src/**/*.spec.ts' --exec npx ts-node app.ts",
-    "build" : "npx tsc"
+		"build": "npx tsc"
 	},
 	"dependencies": {
 		"dotenv": "^16.4.5",
 		"puppeteer": "^22.4.0",
+		"puppeteer-core": "^22.4.0",
 		"qrcode-terminal": "^0.12.0",
 		"whatsapp-web.js": "^1.23.0"
 	},
