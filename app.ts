@@ -84,6 +84,18 @@ function saveBase64AsFile(media: MessageMedia) {
 }
 
 async function removeBg(media: MessageMedia) {
-  exec("rembg i image.jpeg image.png");
-  return MessageMedia.fromFilePath("image.jpeg");
+  await executeCommand("rembg i image.jpeg image.png");
+  return MessageMedia.fromFilePath("image.png");
 }
+
+const executeCommand = (command) => {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+};
