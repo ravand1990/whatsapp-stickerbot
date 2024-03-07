@@ -13,7 +13,10 @@ const Utils = require("whatsapp-web.js/src/util/Util.js");
 
 const options = {
   authStrategy: new LocalAuth(),
-  puppeteer: { channel: "chrome" },
+  puppeteer: {
+    executablePath: "/usr/bin/chromium",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  },
 } as ClientOptions;
 const client: Client = new Client(options);
 
