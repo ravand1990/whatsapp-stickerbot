@@ -13,7 +13,6 @@ const Utils = require("whatsapp-web.js/src/util/Util.js");
 
 const options = {
   authStrategy: new LocalAuth(),
-  puppeteer: { channel: "chrome" },
 } as ClientOptions;
 const client: Client = new Client(options);
 
