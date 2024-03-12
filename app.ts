@@ -75,7 +75,7 @@ async function sendSticker(msg: Message) {
 
       msg.react("✅");
 
-      msg.reply(receivedMedia, msg.to, {
+      msg.reply(receivedMedia, msg.fromMe || isWin ? msg.to : msg.from, {
         stickerAuthor: "ravands_stickerbot",
         sendMediaAsSticker: true,
       });
