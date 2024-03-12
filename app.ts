@@ -75,13 +75,10 @@ async function sendSticker(msg: Message) {
 
       msg.react("✅");
 
-      await client.sendMessage(
-        msg.fromMe || isWin ? msg.to : msg.from,
-        receivedMedia,
-        {
-          sendMediaAsSticker: true,
-        } as MessageSendOptions,
-      );
+      msg.reply(receivedMedia, msg.fromMe || isWin ? msg.to : msg.from, {
+        stickerAuthor: "ravands_stickerbot",
+        sendMediaAsSticker: true,
+      });
     }
   } catch (e) {
     msg.react("❌");
