@@ -8,12 +8,21 @@ dependencies:
   dotenv:
     specifier: ^16.4.5
     version: 16.4.5
+  p-limit:
+    specifier: ^5.0.0
+    version: 5.0.0
+  p-queue:
+    specifier: ^8.0.1
+    version: 8.0.1
   qrcode-terminal:
     specifier: ^0.12.0
     version: 0.12.0
   whatsapp-web.js:
     specifier: ^1.23.0
     version: 1.23.0
+  workerpool:
+    specifier: ^9.1.0
+    version: 9.1.0
 
 devDependencies:
   '@types/qrcode-terminal':
@@ -331,6 +340,10 @@ packages:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
     dependencies:
       once: 1.4.0
+    dev: false
+
+  /eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
     dev: false
 
   /extract-zip@2.0.1:
@@ -704,11 +717,31 @@ packages:
       p-try: 2.2.0
     dev: false
 
+  /p-limit@5.0.0:
+    resolution: {integrity: sha512-/Eaoq+QyLSiXQ4lyYV23f14mZRQcXnxfHrN0vCai+ak9G0pp9iEQukIIZq5NccEvwRB8PUnZT0KsOoDCINS1qQ==}
+    engines: {node: '>=18'}
+    dependencies:
+      yocto-queue: 1.0.0
+    dev: false
+
   /p-locate@4.1.0:
     resolution: {integrity: sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A==}
     engines: {node: '>=8'}
     dependencies:
       p-limit: 2.3.0
+    dev: false
+
+  /p-queue@8.0.1:
+    resolution: {integrity: sha512-NXzu9aQJTAzbBqOt2hwsR63ea7yvxJc0PwN/zobNAudYfb1B7R08SzB4TsLeSbUCuG467NhnoT0oO6w1qRO+BA==}
+    engines: {node: '>=18'}
+    dependencies:
+      eventemitter3: 5.0.1
+      p-timeout: 6.1.2
+    dev: false
+
+  /p-timeout@6.1.2:
+    resolution: {integrity: sha512-UbD77BuZ9Bc9aABo74gfXhNvzC9Tx7SxtHSh1fxvx3jTLLYvmVhiQZZrJzqqU0jKbN32kb5VOKiLEQI/3bIjgQ==}
+    engines: {node: '>=14.16'}
     dev: false
 
   /p-try@2.2.0:
@@ -1053,6 +1086,10 @@ packages:
       isexe: 2.0.0
     dev: false
 
+  /workerpool@9.1.0:
+    resolution: {integrity: sha512-+wRWfm9yyJghvXLSHMQj3WXDxHbibHAQmRrWbqKBfy0RjftZNeQaW+Std5bSYc83ydkrxoPTPOWVlXUR9RWJdQ==}
+    dev: false
+
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     requiresBuild: true
@@ -1080,6 +1117,11 @@ packages:
     dependencies:
       buffer-crc32: 0.2.13
       fd-slicer: 1.1.0
+    dev: false
+
+  /yocto-queue@1.0.0:
+    resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
+    engines: {node: '>=12.20'}
     dev: false
 
   /zip-stream@4.1.1:
