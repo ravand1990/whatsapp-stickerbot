@@ -11,10 +11,19 @@ import * as process from "process";
 import { exec } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import * as imageSize from "image-size";
 
 // const Utils = require("whatsapp-web.js/src/util/Util.js");
 
 const isWin = process.platform === "win32";
+
+const MODELS = [
+  "u2net",
+  "u2netp",
+  "u2net_human_seg",
+  "isnet-general-use",
+  "sam",
+];
 
 const options = {
   authStrategy: new LocalAuth(),
@@ -55,8 +64,13 @@ async function sendSticker(msg: Message) {
     const transparentStickerRequest =
       messageBody === "!!sticker" || messageBody === "!! sticker";
 
+    const multiTransparentStickerRequest =
+      messageBody === "!!!sticker" || messageBody === "!!! sticker";
+
     if (
-      (stickerRequest || transparentStickerRequest) &&
+      (stickerRequest ||
+        transparentStickerRequest ||
+        multiTransparentStickerRequest) &&
       msg.hasMedia &&
       msg.type != MessageTypes.STICKER
     ) {
@@ -65,6 +79,7 @@ async function sendSticker(msg: Message) {
       msg.react("⏳");
 
       let receivedMedia = await msg.downloadMedia();
+      const processedMedia = [];
 
       const isImage = receivedMedia.mimetype.includes("jpeg");
       const isVideo = receivedMedia.mimetype.includes("mp4");
@@ -72,21 +87,38 @@ async function sendSticker(msg: Message) {
       const savedFilePath = saveBase64AsFile(msg.from, receivedMedia);
 
       if (transparentStickerRequest && isImage) {
-        receivedMedia = await removeBg(savedFilePath);
+        processedMedia.push(await removeBg(savedFilePath));
+      }
+
+      if (multiTransparentStickerRequest && isImage) {
+        for (const model of MODELS) {
+          console.log(`Trying model "${model}" ...`);
+          processedMedia.push(await removeBg(savedFilePath, false, model));
+        }
       }
 
       if (isVideo && msg.fromMe) {
-        receivedMedia = await videoToTransparentWebp(
-          await trimVideo(savedFilePath),
+        processedMedia.push(
+          await videoToTransparentWebp(await trimVideo(savedFilePath)),
         );
       }
 
       msg.react("✅");
 
-      msg.reply(receivedMedia, msg.fromMe || isWin ? msg.to : msg.from, {
-        stickerAuthor: "ravands_stickerbot",
-        sendMediaAsSticker: true,
-      });
+      for (const media of processedMedia) {
+        console.log("media", media);
+
+        msg.reply(media, msg.fromMe || isWin ? msg.to : msg.from, {
+          stickerAuthor: "ravands_stickerbot",
+          sendMediaAsSticker: true,
+          caption:
+            "Model: " +
+            media.filename
+              .replace("output_", "")
+              .replace(".png", "")
+              .replace(".webp", ""),
+        });
+      }
     }
   } catch (e) {
     msg.react("❌");
@@ -114,16 +146,26 @@ function saveBase64AsFile(from, media: MessageMedia) {
   return filePath;
 }
 
-async function removeBg(filePath, isVideo = false) {
+async function removeBg(filePath, isVideo = false, model = null) {
   const dirname = path.dirname(filePath);
+  const outFile = `output_${model}${isVideo ? ".webp" : ".png"}`;
 
-  const outFile = "output" + path.extname(filePath);
+  const dimensions = imageSize.imageSize(filePath);
+
+  const isSam = model === "sam";
+  const pointData = [dimensions.width / 2, dimensions.height / 2];
+  const sam = { sam_prompt: [{ type: "point", data: pointData, label: 1 }] };
+
+  const samParams = isSam ? `-x '${JSON.stringify(sam)}'` : "";
 
   if (isVideo)
     await executeCommand(
       `backgroundremover -i "${filePath}" -tv -o "${dirname}/output.mov" && ffmpeg -i ${dirname}/output.mov -vcodec libwebp_anim -q 60 -preset default -loop 0 -an -vsync 0 -vf "scale=512:512:force_original_aspect_ratio=decrease,format=rgba,pad=512:512:-1:-1:color=#00000000" -y ${dirname}/${outFile}"`,
     );
-  else await executeCommand(`rembg i ${filePath} ${dirname}/${outFile}`);
+  else
+    await executeCommand(
+      `rembg i ${model ? `-m ${model}` : ""} ${isSam ? samParams : ""} ${filePath} ${dirname}/${outFile}`,
+    );
 
   if (!isWin)
     await executeCommand(`convert output.png -trim +repage ${outFile}`);
@@ -199,7 +241,6 @@ async function videoToTransparentWebp(filePath) {
   console.log("JPEG-Frames removed!");
 
   await executeCommand(
-    // `cd ${framesPath} && ffmpeg -i out-%03d.png -vf "palettegen=stats_mode=diff" -y palette.png && ffmpeg -framerate 24 -i out-%03d.png -i palette.png -filter_complex "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle" -loop 0 -y output.gif`,
     `cd ${dirname} && ffmpeg -i out-%3d.png -framerate ${fps} -c:v libwebp_anim -filter:v fps=${fps} -lossless 0 -loop 0 -preset default -an -vsync 0 -vf "scale=512:512:force_original_aspect_ratio=decrease,format=rgba,pad=512:512:-1:-1:color=#00000000" -quality 10 -y output.webp`,
   );
 
