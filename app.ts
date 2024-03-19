@@ -22,7 +22,7 @@ const MODELS = [
   "u2netp",
   "u2net_human_seg",
   "isnet-general-use",
-  "sam",
+  // "sam",
 ];
 
 const options = {
