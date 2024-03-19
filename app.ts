@@ -114,7 +114,7 @@ async function sendSticker(msg: Message) {
           stickerAuthor: "ravands_stickerbot",
           sendMediaAsSticker: true,
           caption:
-            "Model: " + media.filename
+            "Model: " + media.filename != undefined
               ? media.filename
                   .replace("output_", "")
                   .replace(".png", "")
