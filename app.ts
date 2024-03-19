@@ -113,13 +113,14 @@ async function sendSticker(msg: Message) {
         msg.reply(media, msg.fromMe || isWin ? msg.to : msg.from, {
           stickerAuthor: "ravands_stickerbot",
           sendMediaAsSticker: true,
-          caption:
-            "Model: " + media.filename != undefined
-              ? media.filename
-                  .replace("output_", "")
-                  .replace(".png", "")
-                  .replace(".webp", "")
-              : "",
+          stickerCategories: ["stickerbot"],
+          // caption:
+          //   "Model: " + media.filename != undefined
+          //     ? media.filename
+          //         .replace("output_", "")
+          //         .replace(".png", "")
+          //         .replace(".webp", "")
+          //     : "",
         });
       }
     }
