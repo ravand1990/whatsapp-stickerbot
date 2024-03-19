@@ -148,7 +148,10 @@ function saveBase64AsFile(from, media: MessageMedia) {
 
 async function removeBg(filePath, isVideo = false, model = null) {
   const dirname = path.dirname(filePath);
-  const outFile = `output_${model}${isVideo ? ".webp" : ".png"}`;
+  const ext = isVideo ? ".webp" : ".png";
+  const outFile = "output_" + model + ext;
+
+  console.log(`Saving rembg image to ${outFile}`);
 
   const dimensions = imageSize.imageSize(filePath);
 
