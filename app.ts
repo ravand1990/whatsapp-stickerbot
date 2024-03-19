@@ -79,7 +79,7 @@ async function sendSticker(msg: Message) {
       msg.react("⏳");
 
       let receivedMedia = await msg.downloadMedia();
-      const processedMedia = [];
+      const processedMedia = [receivedMedia];
 
       const isImage = receivedMedia.mimetype.includes("jpeg");
       const isVideo = receivedMedia.mimetype.includes("mp4");
