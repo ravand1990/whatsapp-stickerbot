@@ -87,10 +87,12 @@ async function sendSticker(msg: Message) {
       const savedFilePath = saveBase64AsFile(msg.from, receivedMedia);
 
       if (transparentStickerRequest && isImage) {
+        processedMedia.pop();
         processedMedia.push(await removeBg(savedFilePath));
       }
 
       if (multiTransparentStickerRequest && isImage) {
+        processedMedia.pop();
         for (const model of MODELS) {
           console.log(`Trying model "${model}" ...`);
           processedMedia.push(await removeBg(savedFilePath, false, model));
@@ -112,11 +114,12 @@ async function sendSticker(msg: Message) {
           stickerAuthor: "ravands_stickerbot",
           sendMediaAsSticker: true,
           caption:
-            "Model: " +
-            media.filename
-              .replace("output_", "")
-              .replace(".png", "")
-              .replace(".webp", ""),
+            "Model: " + media.filename
+              ? media.filename
+                  .replace("output_", "")
+                  .replace(".png", "")
+                  .replace(".webp", "")
+              : "",
         });
       }
     }
