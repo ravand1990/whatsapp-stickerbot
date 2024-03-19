@@ -171,7 +171,7 @@ async function removeBg(filePath, isVideo = false, model = null) {
     );
 
   if (!isWin)
-    await executeCommand(`convert output.png -trim +repage ${outFile}`);
+    await executeCommand(`convert ${outFile} -trim +repage ${outFile}`);
   return MessageMedia.fromFilePath(`${dirname}/${outFile}`);
 }
 
