@@ -61,8 +61,11 @@ async function sendSticker(msg: Message) {
       messageBody === "!sticker" ||
       messageBody === "sticker" ||
       messageBody === "! sticker";
+
     const transparentStickerRequest =
-      messageBody === "!!sticker" || messageBody === "!! sticker";
+      (isWin && messageBody === "!!test") ||
+      messageBody === "!!sticker" ||
+      messageBody === "!! sticker";
 
     const multiTransparentStickerRequest =
       messageBody === "!!!sticker" || messageBody === "!!! sticker";
@@ -152,8 +155,9 @@ function saveBase64AsFile(from, media: MessageMedia) {
 
 async function removeBg(filePath, isVideo = false, model = null) {
   const dirname = path.dirname(filePath);
+  const fileName = path.basename(filePath).split(".")[0];
   const ext = isVideo ? ".webp" : ".png";
-  const outFile = "output_" + model + ext;
+  const outFile = fileName + (model ? "_" + model : "") + ext;
 
   console.log(`Saving rembg image to ${outFile}`);
 
@@ -239,7 +243,7 @@ async function videoToTransparentWebp(filePath) {
   const frames = fs
     .readdirSync(dirname)
     .filter((f) => regex.test(f))
-    .map((frame) => `${dirname}/${frame}`);
+    .map((frame, i) => `${dirname}/${frame}`);
 
   await removeBgSequentially(frames);
 
@@ -250,7 +254,7 @@ async function videoToTransparentWebp(filePath) {
   console.log("JPEG-Frames removed!");
 
   await executeCommand(
-    `cd ${dirname} && ffmpeg -i out-%3d.png -framerate ${fps} -c:v libwebp_anim -filter:v fps=${fps} -lossless 0 -loop 0 -preset default -an -vsync 0 -vf "scale=512:512:force_original_aspect_ratio=decrease,format=rgba,pad=512:512:-1:-1:color=#00000000" -quality 10 -y output.webp`,
+    `cd ${dirname} && ffmpeg -i out-%03d.png -framerate ${fps} -c:v libwebp_anim -filter:v fps=${fps} -lossless 0 -loop 0 -preset default -an -vsync 0 -vf "scale=512:512:force_original_aspect_ratio=decrease,format=rgba,pad=512:512:-1:-1:color=#00000000" -quality 10 -y output.webp`,
   );
 
   console.log("Gif created successfull!");
