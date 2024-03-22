@@ -99,7 +99,7 @@ async function sendSticker(msg: Message) {
         }
       }
 
-      if (isVideo && msg.fromMe) {
+      if (transparentStickerRequest && isVideo) {
         processedMedia.push(
           await videoToTransparentWebp(await trimVideo(savedFilePath)),
         );
