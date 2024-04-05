@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  app:
+    container_name: 'WA-STICKERBOT'
+    image: ravand1990/wa-stickerbot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${PWD}/.wwebjs_auth:/app/.wwebjs_auth
+      - ${PWD}/.wwebjs_cache:/app/.wwebjs_cache
+      - ${PWD}/dist:/app/dist
+      - ${PWD}/sticker:/app/sticker
+    environment:
+      - WATCHPACK_POLLING=true

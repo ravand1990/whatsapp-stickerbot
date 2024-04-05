@@ -1,21 +1,34 @@
 {
 	"scripts": {
 		"serve": "npx nodemon --watch **/*.ts --ignore 'src/**/*.spec.ts' --exec npx ts-node app.ts",
-		"build": "npx tsc"
+		"run": "node dist/app.js",
+		"watch": "npx webpack --watch",
+		"start": "pnpm run watch & npx nodemon",
+		"build": "webpack"
 	},
 	"dependencies": {
+		"cwebp-bin": "^8.0.0",
 		"dotenv": "^16.4.5",
+		"fluent-ffmpeg": "^2.1.2",
 		"image-size": "^1.1.1",
-		"p-limit": "^5.0.0",
-		"p-queue": "^8.0.1",
+		"imagemin-webp": "^8.0.0",
 		"qrcode-terminal": "^0.12.0",
-		"whatsapp-web.js": "^1.23.0",
-		"workerpool": "^9.1.0"
+		"whatsapp-web.js": "^1.23.0"
 	},
 	"devDependencies": {
+		"@types/imagemin": "^8.0.5",
+		"@types/imagemin-webp": "^7.0.3",
 		"@types/qrcode-terminal": "^0.12.2",
+		"copy-webpack-plugin": "^12.0.2",
+		"image-minimizer-webpack-plugin": "^4.0.0",
+		"imagemin": "^8.0.1",
 		"nodemon": "^3.1.0",
 		"prettier": "^3.2.5",
-		"typescript": "^5.4.2"
+		"ts-loader": "^9.5.1",
+		"typescript": "^5.4.2",
+		"webpack": "^5.91.0",
+		"webpack-cli": "^5.1.4",
+		"webpack-node-externals": "^3.0.0",
+		"webpack-shell-plugin-next": "^2.3.1"
 	}
 }

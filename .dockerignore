@@ -130,12 +130,4 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-.idea
-.wwebjs_auth
-.wwebjs_cache
-image.jpeg
-image.png
-sticker
-*.log
-
 models

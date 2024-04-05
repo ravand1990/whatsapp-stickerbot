@@ -57,18 +57,20 @@ async function sendSticker(msg: Message) {
   try {
     const messageBody = msg.body.toLowerCase();
     const stickerRequest =
-      (isWin && messageBody === "!test") ||
+      messageBody === "!test" ||
       messageBody === "!sticker" ||
       messageBody === "sticker" ||
       messageBody === "! sticker";
 
     const transparentStickerRequest =
-      (isWin && messageBody === "!!test") ||
+      messageBody === "!!test" ||
       messageBody === "!!sticker" ||
       messageBody === "!! sticker";
 
     const multiTransparentStickerRequest =
-      messageBody === "!!!sticker" || messageBody === "!!! sticker";
+      messageBody === "!!!test" ||
+      messageBody === "!!!sticker" ||
+      messageBody === "!!! sticker";
 
     if (
       (stickerRequest ||
@@ -104,46 +106,28 @@ async function sendSticker(msg: Message) {
 
       if (transparentStickerRequest && isVideo) {
         processedMedia.push(
-          await videoToTransparentWebp(await trimVideo(savedFilePath)),
+          await videoToTransparentWebp(await trimAndResizeVideo(savedFilePath)),
         );
       }
 
       msg.react("✅");
 
       for (const media of processedMedia) {
-        console.log("media", media);
-
         msg.reply(media, msg.fromMe || isWin ? msg.to : msg.from, {
           stickerAuthor: "ravands_stickerbot",
           sendMediaAsSticker: true,
           stickerCategories: ["stickerbot"],
-          // caption:
-          //   "Model: " + media.filename != undefined
-          //     ? media.filename
-          //         .replace("output_", "")
-          //         .replace(".png", "")
-          //         .replace(".webp", "")
-          //     : "",
         });
       }
     }
-  } catch (e) {
+  } catch (e: any) {
     msg.react("❌");
     console.log("e.message", e.message);
     console.log("e.stack", e.stack);
   }
 }
 
-/*
-async function convertToSticker(media: MessageMedia) {
-  if (media.mimetype.includes("image"))
-    return await Utils.formatImageToWebpSticker(media, client.pupPage);
-  if (media.mimetype.includes("video"))
-    return await Utils.formatVideoToWebpSticker(media, client.pupPage);
-}
-*/
-
-function saveBase64AsFile(from, media: MessageMedia) {
+function saveBase64AsFile(from: string, media: MessageMedia) {
   const extension = media.mimetype.includes("jpeg") ? "jpeg" : "mp4";
   const buffer = Buffer.from(media.data, "base64");
   let path = `sticker/${from}`;
@@ -153,7 +137,11 @@ function saveBase64AsFile(from, media: MessageMedia) {
   return filePath;
 }
 
-async function removeBg(filePath, isVideo = false, model = null) {
+async function removeBg(
+  filePath: string,
+  isVideo = false,
+  model: null | string | undefined = null,
+) {
   const dirname = path.dirname(filePath);
   const fileName = path.basename(filePath).split(".")[0];
   const ext = isVideo ? ".webp" : ".png";
@@ -164,34 +152,47 @@ async function removeBg(filePath, isVideo = false, model = null) {
   const dimensions = imageSize.imageSize(filePath);
 
   const isSam = model === "sam";
+  // @ts-ignore
   const pointData = [dimensions.width / 2, dimensions.height / 2];
   const sam = { sam_prompt: [{ type: "point", data: pointData, label: 1 }] };
 
   const samParams = isSam ? `-x '${JSON.stringify(sam)}'` : "";
 
-  if (isVideo)
-    await executeCommand(
-      `backgroundremover -i "${filePath}" -tv -o "${dirname}/output.mov" && ffmpeg -i ${dirname}/output.mov -vcodec libwebp_anim -q 60 -preset default -loop 0 -an -vsync 0 -vf "scale=512:512:force_original_aspect_ratio=decrease,format=rgba,pad=512:512:-1:-1:color=#00000000" -y ${dirname}/${outFile}"`,
-    );
-  else
+  if (!isVideo) {
     await executeCommand(
       `rembg i ${model ? `-m ${model}` : ""} ${isSam ? samParams : ""} ${filePath} ${dirname}/${outFile}`,
     );
+  }
 
-  if (!isWin)
-    await executeCommand(
-      `convert ${dirname}/${outFile} -trim +repage ${dirname}/${outFile}`,
-    );
-  return MessageMedia.fromFilePath(`${dirname}/${outFile}`);
+  await executeCommand(
+    `convert ${dirname}/${outFile} -trim +repage ${dirname}/${outFile}`,
+  );
+
+  let command = `pngquant ${dirname}/${outFile} --output ${dirname}/${outFile} -f`;
+  await executeCommand(command);
+
+  const trimmedDimensions = imageSize.imageSize(`${dirname}/${outFile}`);
+
+  console.log("trimmedDimensions", trimmedDimensions);
+
+  return {
+    ...MessageMedia.fromFilePath(`${dirname}/${outFile}`),
+    trimmedDimensions,
+  };
 }
 
-async function removeBgSequentially(frames) {
+async function removeBgSequentially(frames: string[]) {
   const chunkSize = 20; // Number of frames to process at a time
+  let processedFrames: any = [];
+
+  const maxDimensions = { width: 0, height: 0 };
 
   // Helper function to process a chunk of frames
-  async function processChunk(chunk) {
-    await Promise.all(chunk.map((frame) => removeBg(frame)));
+  async function processChunk(chunk: string[]) {
+    return await Promise.all(chunk.map((frame) => removeBg(frame)));
   }
+
+  console.log("maxDimensions", maxDimensions);
 
   // Creating chunks and processing them sequentially
   for (let i = 0; i < frames.length; i += chunkSize) {
@@ -200,23 +201,34 @@ async function removeBgSequentially(frames) {
     console.log(`Processing frames ${i} to ${i + chunkSize - 1}...`);
 
     // Processing the current chunk
-    await processChunk(chunk);
+    processedFrames.push(await processChunk(chunk));
   }
+  return processedFrames;
 }
 
-async function trimVideo(filePath) {
+async function trimAndResizeVideo(filePath: string) {
   console.log("Trimming video...");
   let trimmedFilePath = filePath.replace(".mp4", "_trimmed.mp4");
+  let resizedFilePath = filePath.replace(".mp4", "_resized.mp4");
 
-  const command = `ffmpeg -y -i ${filePath} -ss 00:00:00 -to 00:00:10 ${trimmedFilePath}`;
-  const result = await executeCommand(command);
+  let command = `ffmpeg -y -i ${filePath} -ss 00:00:00 -to 00:00:10 ${trimmedFilePath}`;
+  let result = await executeCommand(command);
+
   if (result.stderr) {
     console.log("result.stderr", result.stderr);
   }
-  return trimmedFilePath;
+
+  command = `ffmpeg -i ${trimmedFilePath} -vf "scale='min(512,iw)':'min(512,ih)':force_original_aspect_ratio=decrease" -c:a copy -y ${resizedFilePath}`;
+  result = await executeCommand(command);
+
+  if (result.stderr) {
+    console.log("result.stderr", result.stderr);
+  }
+
+  return resizedFilePath;
 }
 
-async function videoToTransparentWebp(filePath) {
+async function videoToTransparentWebp(filePath: string) {
   const dirname = path.dirname(filePath);
 
   console.log("Generating frames from Video...");
@@ -228,8 +240,9 @@ async function videoToTransparentWebp(filePath) {
   ).stdout
     .replace("\r\n", "")
     .split("/");
-  const fps = ffprobe[0] / ffprobe[1];
+  const fps = Math.floor(ffprobe[0] / ffprobe[1]);
 
+  console.log("FPS of Video is: " + fps);
   fs.mkdirSync(dirname, { recursive: true });
 
   await executeCommand(
@@ -245,7 +258,28 @@ async function videoToTransparentWebp(filePath) {
     .filter((f) => regex.test(f))
     .map((frame, i) => `${dirname}/${frame}`);
 
-  await removeBgSequentially(frames);
+  const transparentFrames = await removeBgSequentially(frames);
+
+  const maxDimensions = { width: 0, height: 0 };
+
+  for (const transparentFrame of transparentFrames || []) {
+    if (
+      transparentFrame.trimmedDimensions &&
+      transparentFrame.trimmedDimensions.width
+    ) {
+      if (transparentFrame.trimmedDimensions.width > maxDimensions.width)
+        maxDimensions.width = transparentFrame.trimmedDimensions.width;
+    }
+    if (
+      transparentFrame.trimmedDimensions &&
+      transparentFrame.trimmedDimensions.height
+    ) {
+      if (transparentFrame.trimmedDimensions.height > maxDimensions.height)
+        maxDimensions.height = transparentFrame.trimmedDimensions.height;
+    }
+  }
+
+  console.log("maxDimensions", maxDimensions);
 
   console.log("Frames BG removed!");
 
@@ -254,7 +288,7 @@ async function videoToTransparentWebp(filePath) {
   console.log("JPEG-Frames removed!");
 
   await executeCommand(
-    `cd ${dirname} && ffmpeg -i out-%03d.png -framerate ${fps} -c:v libwebp_anim -filter:v fps=${fps} -lossless 0 -loop 0 -preset default -an -vsync 0 -vf "scale=512:512:force_original_aspect_ratio=decrease,format=rgba,pad=512:512:-1:-1:color=#00000000" -quality 10 -y output.webp`,
+    `cd ${dirname} && ffmpeg -framerate ${fps} -i out-%03d.png -c:v libwebp_anim -loop 0 -an -vf "scale=${maxDimensions.width}:${maxDimensions.height}:force_original_aspect_ratio=decrease,format=rgba" -q 1 -y output.webp`,
   );
 
   console.log("Gif created successfull!");
@@ -269,13 +303,23 @@ async function videoToTransparentWebp(filePath) {
   return MessageMedia.fromFilePath(`${dirname}/output.webp`);
 }
 
-const executeCommand: (command) => Promise<{ stdout; stderr }> = (command) => {
+const executeCommand: (command: string) => Promise<{
+  // @ts-ignore
+  stdout;
+  // @ts-ignore
+
+  stderr;
+}> = (command) => {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
+      if (error) console.log("CONSOLE ERROR:\n", stdout);
+
       if (error) {
         reject(error);
         return;
       }
+      if (stdout) console.log("CONSOLE:\n", stdout);
+      if (stderr) console.log("CONSOLE ERROR:\n", stdout);
       resolve({ stdout, stderr });
     });
   });
