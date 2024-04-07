@@ -19,6 +19,8 @@ RUN ln -sf /bin/bash /bin/sh
 WORKDIR app
 ADD .. .
 
+RUN chmod -R 777 .
+
 CMD "nodemon"
 
 #ENTRYPOINT ["top","-b"]

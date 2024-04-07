@@ -13,8 +13,6 @@ import * as fs from "fs";
 import * as path from "path";
 import * as imageSize from "image-size";
 
-// const Utils = require("whatsapp-web.js/src/util/Util.js");
-
 const isWin = process.platform === "win32";
 
 const MODELS = [
@@ -26,16 +24,23 @@ const MODELS = [
 ];
 
 const options = {
-  authStrategy: new LocalAuth(),
+  authStrategy: new LocalAuth({ dataPath: "sessions" }),
+  webVersionCache: {
+    type: "remote",
+    remotePath:
+      "https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html",
+  },
   puppeteer: {
     channel: isWin ? "chrome" : undefined,
     executablePath: isWin ? undefined : "/usr/bin/chromium",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   },
 } as ClientOptions;
+
 const client: Client = new Client(options);
 
 client.on("qr", (qr: string) => {
+  console.log("wtf", "wtf");
   qrcode.generate(qr, { small: true });
 });
 
