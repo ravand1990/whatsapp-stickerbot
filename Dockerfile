@@ -11,10 +11,9 @@ RUN webpack
 FROM nikolaik/python-nodejs
 
 RUN apt-get update && \
-    apt-get install -y ffmpeg imagemagick && \
-    # Clean up the package lists to keep the image size down
-    rm -rf /var/lib/apt/lists/* \
-RUN apt install chromium -y
+    apt-get install -y ffmpeg imagemagick chromium && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN pip install rembg[cli]
 RUN rembg d
 
