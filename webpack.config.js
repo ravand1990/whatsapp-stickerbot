@@ -18,6 +18,7 @@ module.exports = {
   resolve: {
     symlinks: true,
     extensions: [".ts", ".js"],
+    mainFields: ["main", "module"],
   },
   output: {
     filename: "app.js",

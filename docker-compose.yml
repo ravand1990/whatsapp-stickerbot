@@ -11,7 +11,6 @@ services:
       - ${PWD}/.wwebjs_auth:/app/.wwebjs_auth
       - ${PWD}/.wwebjs_cache:/app/.wwebjs_cache
       - ${PWD}/sessions:/app/sessions
-      - ${PWD}/dist:/app/dist
       - ${PWD}/sticker:/app/sticker
     environment:
       - WATCHPACK_POLLING=true

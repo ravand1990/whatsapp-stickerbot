@@ -13,6 +13,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as imageSize from "image-size";
 
+console.log("STARTING WA-STICKERBOT!");
+
 const isWin = process.platform === "win32";
 
 const MODELS = [
@@ -24,12 +26,7 @@ const MODELS = [
 ];
 
 const options = {
-  authStrategy: new LocalAuth({ dataPath: "sessions" }),
-  webVersionCache: {
-    type: "remote",
-    remotePath:
-      "https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html",
-  },
+  authStrategy: new LocalAuth(),
   puppeteer: {
     channel: isWin ? "chrome" : undefined,
     executablePath: isWin ? undefined : "/usr/bin/chromium",
@@ -40,7 +37,6 @@ const options = {
 const client: Client = new Client(options);
 
 client.on("qr", (qr: string) => {
-  console.log("wtf", "wtf");
   qrcode.generate(qr, { small: true });
 });
 
