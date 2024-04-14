@@ -1,3 +1,4 @@
+console.log("STARTING WA-STICKERBOT! 1");
 import {
   Client,
   ClientOptions,
@@ -6,14 +7,14 @@ import {
   MessageMedia,
   MessageTypes,
 } from "whatsapp-web.js";
+console.log("STARTING WA-STICKERBOT! 2");
+
 import * as qrcode from "qrcode-terminal";
 import * as process from "process";
 import { exec } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as imageSize from "image-size";
-
-console.log("STARTING WA-STICKERBOT!");
 
 const isWin = process.platform === "win32";
 

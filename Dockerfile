@@ -1,14 +1,4 @@
-FROM node:alpine as builder
-
-RUN npm install -g pnpm webpack webpack-cli
-
-WORKDIR app
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm i
-COPY . .
-RUN webpack
-
-FROM node:alpine
+FROM nikolaik/python-nodejs
 RUN ln -sf /bin/bash /bin/sh
 
 RUN apt-get update && \
@@ -18,7 +8,12 @@ RUN apt-get update && \
 RUN pip install rembg[cli]
 RUN rembg d
 
+RUN npm install -g pnpm webpack webpack-cli
+
 WORKDIR app
-COPY --from=builder /app/dist .
-ENTRYPOINT ["node", "app.js"]
-#ENTRYPOINT ["top","-b"]
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm i
+COPY . .
+RUN webpack
+
+ENTRYPOINT ["node", "dist/app.js"]
