@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs as build
+FROM node:alpine as build
 
 RUN npm install -g pnpm webpack webpack-cli
 
