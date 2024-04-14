@@ -1,4 +1,4 @@
-FROM node:alpine as build
+FROM node:alpine as builder
 
 RUN npm install -g pnpm webpack webpack-cli
 
@@ -8,7 +8,8 @@ RUN pnpm i
 COPY . .
 RUN webpack
 
-FROM nikolaik/python-nodejs
+FROM node:alpine
+RUN ln -sf /bin/bash /bin/sh
 
 RUN apt-get update && \
     apt-get install -y ffmpeg imagemagick chromium && \
@@ -18,6 +19,6 @@ RUN pip install rembg[cli]
 RUN rembg d
 
 WORKDIR app
-
-COPY --from=build /app/dist /app/dist
-ENTRYPOINT ["node", "dist/app.js"]
+COPY --from=builder /app/dist .
+ENTRYPOINT ["node", "app.js"]
+#ENTRYPOINT ["top","-b"]
