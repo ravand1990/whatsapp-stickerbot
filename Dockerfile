@@ -15,5 +15,5 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm i
 COPY . .
 RUN webpack
-RUN export OMP_NUM_THREADS=2
+ENV OMP_NUM_THREADS=2
 ENTRYPOINT ["node", "dist/app.js"]

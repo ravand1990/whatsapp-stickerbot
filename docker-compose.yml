@@ -12,5 +12,3 @@ services:
       - ${PWD}/.wwebjs_cache:/app/.wwebjs_cache
       - ${PWD}/sticker:/app/sticker
     restart: unless-stopped
-    environment:
-      - MP_NUM_THREADS=2
