@@ -55,7 +55,7 @@ client.initialize();
 
 async function sendSticker(msg: Message) {
   try {
-    const messageBody = msg.body.toLowerCase();
+    const messageBody = msg.body.toString().toLowerCase();
     const stickerRequest =
       messageBody === "!test" ||
       messageBody === "!sticker" ||
