@@ -1,4 +1,3 @@
-console.log("STARTING WA-STICKERBOT! 1");
 import {
   Client,
   ClientOptions,
@@ -7,7 +6,6 @@ import {
   MessageMedia,
   MessageTypes,
 } from "whatsapp-web.js";
-console.log("STARTING WA-STICKERBOT! 2");
 
 import * as qrcode from "qrcode-terminal";
 import * as process from "process";
