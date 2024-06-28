@@ -168,8 +168,8 @@ async function removeBg(
     `convert ${dirname}/${outFile} -trim +repage ${dirname}/${outFile}`,
   );
 
-  // let command = `pngquant ${dirname}/${outFile} --output ${dirname}/${outFile} -f`;
-  // await executeCommand(command);
+  let command = `pngquant ${dirname}/${outFile} --output ${dirname}/${outFile} -f`;
+  await executeCommand(command);
 
   const trimmedDimensions = imageSize.imageSize(`${dirname}/${outFile}`);
 
