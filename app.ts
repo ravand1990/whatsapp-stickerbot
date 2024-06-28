@@ -93,14 +93,16 @@ async function sendSticker(msg: Message) {
 
       if (transparentStickerRequest && isImage) {
         processedMedia.pop();
-        processedMedia.push(await removeBg(savedFilePath));
+        processedMedia.push((await removeBg(savedFilePath)).media);
       }
 
       if (multiTransparentStickerRequest && isImage) {
         processedMedia.pop();
         for (const model of MODELS) {
           console.log(`Trying model "${model}" ...`);
-          processedMedia.push(await removeBg(savedFilePath, false, model));
+          processedMedia.push(
+            (await removeBg(savedFilePath, false, model)).media,
+          );
         }
       }
 
@@ -111,6 +113,8 @@ async function sendSticker(msg: Message) {
       }
 
       msg.react("✅");
+
+      console.log("processedMedia", processedMedia);
 
       for (const media of processedMedia) {
         msg.reply(media, msg.fromMe || isWin ? msg.to : msg.from, {
@@ -168,15 +172,19 @@ async function removeBg(
     `convert ${dirname}/${outFile} -trim +repage ${dirname}/${outFile}`,
   );
 
-  let command = `pngquant ${dirname}/${outFile} --output ${dirname}/${outFile} -f`;
-  await executeCommand(command);
+  // let command = `pngquant ${dirname}/${outFile} --output ${dirname}/${outFile} -f`;
+  // await executeCommand(command);
 
+  let path1 = `${dirname}/${outFile}`;
+
+  console.log("path1", path1);
+
+  console.log("File size:", getFileSize(path1));
   const trimmedDimensions = imageSize.imageSize(`${dirname}/${outFile}`);
-
   console.log("trimmedDimensions", trimmedDimensions);
 
   return {
-    ...MessageMedia.fromFilePath(`${dirname}/${outFile}`),
+    media: MessageMedia.fromFilePath(`${dirname}/${outFile}`),
     trimmedDimensions,
   };
 }
@@ -324,3 +332,10 @@ const executeCommand: (command: string) => Promise<{
     });
   });
 };
+
+function getFileSize(path: string): any {
+  var stats = fs.statSync("./" + path);
+  var fileSizeInBytes = stats.size;
+  // Convert the file size to megabytes (optional)
+  var fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+}
