@@ -2,7 +2,7 @@ FROM nikolaik/python-nodejs
 RUN ln -sf /bin/bash /bin/sh
 
 RUN apt-get update && \
-    apt-get install -y ffmpeg imagemagick chromium && \
+    apt-get install -y ffmpeg imagemagick chromium pngquant && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install rembg[cli]
