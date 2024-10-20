@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs
+FROM nikolaik/python-nodejs:python3.9-nodejs23-slim
 RUN ln -sf /bin/bash /bin/sh
 
 RUN apt-get update && \
