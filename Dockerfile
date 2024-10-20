@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.9-nodejs23-slim
+FROM nikolaik/python-nodejs:python3.9-nodejs23-slim as base
 RUN ln -sf /bin/bash /bin/sh
 
 RUN apt-get update && \
@@ -7,9 +7,10 @@ RUN apt-get update && \
 
 RUN pip install rembg[cli]
 RUN rembg d
-
 RUN npm install -g pnpm webpack webpack-cli
 
+
+FROM base
 WORKDIR app
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm i
