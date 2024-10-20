@@ -15,7 +15,7 @@
 		"install": "^0.13.0",
 		"node-fetch": "^3.3.2",
 		"qrcode-terminal": "^0.12.0",
-		"whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus"
+		"whatsapp-web.js": "github:pedroslopez/whatsapp-web.js"
 	},
 	"devDependencies": {
 		"@types/imagemin": "^8.0.5",
