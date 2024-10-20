@@ -16,4 +16,5 @@ RUN pnpm i
 COPY . .
 RUN webpack
 ENV OMP_NUM_THREADS=2
+RUN rm -rf ~/.config/google-chrome/SingletonLock
 ENTRYPOINT ["node", "dist/app.js"]
